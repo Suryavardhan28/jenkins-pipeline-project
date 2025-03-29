@@ -1,0 +1,22 @@
+{
+    "name": "jenkins-pipeline-project",
+    "version": "1.0.0",
+    "description": "Demo project for Jenkins CI/CD pipeline",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "test": "jest",
+        "build": "echo 'Build step completed'",
+        "lint": "eslint ."
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.17.1"
+    },
+    "devDependencies": {
+        "jest": "^27.0.6",
+        "eslint": "^7.32.0"
+    }
+}
