@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'build-slave'
+    }
 
     environment {
         NODE_VERSION = '14.x'
