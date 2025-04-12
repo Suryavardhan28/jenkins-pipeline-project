@@ -7,6 +7,13 @@ pipeline {
     }
     
     stages {
+        stage('Configure Git') {
+            steps {
+                bat 'git config --global --add safe.directory C:/ProgramData/Jenkins/.jenkins/workspace/jenkins-pipeline-project'
+                echo "Git safe directory configured"
+            }
+        }
+        
         stage('Debug Branch Info') {
             steps {
                 echo "Current branch name from env.BRANCH_NAME: ${env.BRANCH_NAME ?: 'null'}"
@@ -125,8 +132,10 @@ pipeline {
     
     post {
         always {
-            cleanWs()
-            echo "Workspace cleaned"
+            node(null) {
+                cleanWs()
+                echo "Workspace cleaned"
+            }
         }
         success {
             echo 'Pipeline executed successfully!'
@@ -136,4 +145,4 @@ pipeline {
             // Add notification steps here (e.g., Slack, email)
         }
     }
-} 
+}  
