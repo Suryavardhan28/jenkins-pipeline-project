@@ -1,11 +1,6 @@
 pipeline {
     agent any
     
-    options {
-        // Add checkout retry option
-        retry(3)
-    }
-    
     environment {
         NODE_VERSION = '14.x'
         DOCKER_COMPOSE = 'docker-compose'
@@ -15,27 +10,15 @@ pipeline {
         stage('Debug Branch Info') {
             steps {
                 echo "Current branch name from env.BRANCH_NAME: ${env.BRANCH_NAME ?: 'null'}"
-                bat "git rev-parse --abbrev-ref HEAD || echo 'Not in a git directory'"
-                bat "git branch || echo 'Not in a git directory'"
-                bat "git branch -a || echo 'Not in a git directory'"
+                bat "git rev-parse --abbrev-ref HEAD"
+                bat "git branch"
+                bat "git branch -a"
             }
         }
         
         stage('Checkout') {
             steps {
-                // Force initialize git repository
-                bat "git init"
-                // Use specific checkout with clone options
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/dev'], [name: '*/main']],
-                    extensions: [
-                        [$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true],
-                        [$class: 'WipeWorkspace'] // Force clean workspace before checkout
-                    ],
-                    userRemoteConfigs: [[url: 'https://github.com/Suryavardhan28/jenkins-pipeline-project']]
-                ])
-                bat "git status || echo 'Git status failed'"
+                checkout scm
             }
         }
         
@@ -89,24 +72,8 @@ pipeline {
                 expression { return env.GIT_BRANCH == 'origin/dev' || env.BRANCH_NAME == 'dev' }
             }
             steps {
-                echo "Preparing to deploy to staging environment"
-                
-                // Stop any existing containers first
-                bat "docker stop staging-server || echo 'Container not running'"
-                bat "docker rm staging-server || echo 'Container does not exist'"
-                
-                // Make sure Docker is running
-                bat "docker info || echo 'Docker not running, please start Docker'"
-                
-                // Deploy using docker-compose
+                echo "Deploying to staging environment"
                 bat "${DOCKER_COMPOSE} up -d --build staging"
-                
-                // Wait for container to be ready
-                bat "timeout /t 10 /nobreak"
-                
-                // Check if container is running
-                bat "docker ps | findstr staging-server"
-                
                 echo "Application deployed to Staging at http://localhost:3001"
             }
             post {
@@ -116,7 +83,6 @@ pipeline {
                 failure {
                     echo "Staging deployment failed"
                     // You can add rollback steps here
-                    bat "docker logs staging-server"
                     bat "${DOCKER_COMPOSE} stop staging"
                 }
             }
@@ -139,24 +105,8 @@ pipeline {
                 expression { return env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main' }
             }
             steps {
-                echo "Preparing to deploy to production environment"
-                
-                // Stop any existing containers first
-                bat "docker stop production-server || echo 'Container not running'"
-                bat "docker rm production-server || echo 'Container does not exist'"
-                
-                // Make sure Docker is running
-                bat "docker info || echo 'Docker not running, please start Docker'"
-                
-                // Deploy using docker-compose
+                echo "Deploying to production environment"
                 bat "${DOCKER_COMPOSE} up -d --build production"
-                
-                // Wait for container to be ready
-                bat "timeout /t 10 /nobreak"
-                
-                // Check if container is running
-                bat "docker ps | findstr production-server"
-                
                 echo "Application deployed to Production at http://localhost:3002"
             }
             post {
@@ -166,7 +116,6 @@ pipeline {
                 failure {
                     echo "Production deployment failed"
                     // Rollback steps
-                    bat "docker logs production-server"
                     bat "${DOCKER_COMPOSE} stop production"
                     echo "Rolled back production deployment"
                 }
@@ -176,25 +125,15 @@ pipeline {
     
     post {
         always {
-            node {
-                // Run cleanWs inside a node block
-                cleanWs(cleanWhenNotBuilt: false,
-                        deleteDirs: true,
-                        disableDeferredWipeout: true,
-                        notFailBuild: true)
-                echo "Workspace cleaned"
-            }
+            cleanWs()
+            echo "Workspace cleaned"
         }
         success {
-            node {
-                echo 'Pipeline executed successfully!'
-            }
+            echo 'Pipeline executed successfully!'
         }
         failure {
-            node {
-                echo 'Pipeline failed!'
-                // Add notification steps here (e.g., Slack, email)
-            }
+            echo 'Pipeline failed!'
+            // Add notification steps here (e.g., Slack, email)
         }
     }
 } 
