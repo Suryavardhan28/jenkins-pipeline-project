@@ -18,10 +18,12 @@
 -   Set up `package.json` with required dependencies
 -   Created comprehensive `Jenkinsfile` with pipeline stages
 -   Created detailed `README.md` with documentation
+-   Added HTML landing page
 
 ### 3. Pipeline Configuration ✅
 
 -   Defined pipeline stages:
+    -   Configure Git
     -   Checkout
     -   Setup Node.js
     -   Build
@@ -78,70 +80,23 @@
 -   [x] Verified all pipeline stages execute properly
 -   [x] Confirmed branch-specific deployment logic works
 
-## Pending Steps
+### 9. Environment Setup ✅
 
-### 1. Environment Setup ⏳
+-   [x] Start Docker containers for environments
+-   [x] Set up staging environment using Docker Compose
+-   [x] Set up production environment using Docker Compose
+-   [x] Configure environment-specific deployments
+-   [x] Verify deployment process
 
--   [ ] Start Docker containers for environments
--   [ ] Set up staging environment using Docker Compose
--   [ ] Set up production environment using Docker Compose
--   [ ] Configure environment-specific deployments
--   [ ] Verify deployment process
+### 10. Complete Pull Request Flow ✅
 
-### 2. Complete Pull Request Flow ⏳
+-   [x] Make additional code changes in dev branch
+-   [x] Create pull request from dev to main
+-   [x] Test pipeline execution for main branch
+-   [x] Verify deployment to production (or approval step)
+-   [x] Test rollback procedures
 
--   [ ] Make additional code changes in dev branch
--   [ ] Create pull request from dev to main
--   [ ] Test pipeline execution for main branch
--   [ ] Verify deployment to production (or approval step)
--   [ ] Test rollback procedures
-
-## Instructions to Resume
-
-1. **Start Docker for Environments**:
-
-    ```bash
-    # Make sure Docker Desktop is running
-    docker-compose up -d
-    ```
-
-2. **Verify Environments**:
-
-    ```bash
-    # Test staging environment
-    curl http://localhost:3001/
-
-    # Test production environment
-    curl http://localhost:3002/
-    ```
-
-3. **Make Additional Changes**:
-
-    ```bash
-    git checkout dev
-    # Make changes to files
-    git add .
-    git commit -m "Update for testing full pipeline"
-    git push origin dev
-    ```
-
-4. **Create Pull Request**:
-
-    - Go to GitHub repository
-    - Create pull request from dev to main
-    - Review and merge
-
-5. **Monitor Pipeline Execution**:
-    - Check Jenkins for build triggered by main branch
-    - Verify all stages including production deployment
-
-## Final Steps
-
-1. Complete environment setup and testing
-2. Take screenshots of pipeline execution for documentation
-3. Document any issues encountered
-4. Create final presentation/demo
-5. Submit completed assignment
+## All Steps Completed ✅
 
 ## Testing Instructions
 
@@ -160,27 +115,41 @@
 3. **Test Staging Environment**:
 
     ```
-    curl http://localhost:3001/
+    # Access HTML landing page
+    http://localhost:3001/
+
+    # Access JSON API
+    http://localhost:3001/api
+
+    # Check health status
+    http://localhost:3001/health
     ```
 
 4. **Test Production Environment**:
 
     ```
-    curl http://localhost:3002/
+    # Access HTML landing page
+    http://localhost:3002/
+
+    # Access JSON API
+    http://localhost:3002/api
+
+    # Check health status
+    http://localhost:3002/health
     ```
 
 5. **Make Code Changes for Testing**:
 
     ```
-    git checkout develop
+    git checkout dev
     # Make changes to code
     git add .
     git commit -m "Test changes"
-    git push origin develop
+    git push origin dev
     ```
 
 6. **Create Pull Request**:
-    - Create PR from develop to main
+    - Create PR from dev to main
     - Review pipeline execution
     - Approve and merge
 
