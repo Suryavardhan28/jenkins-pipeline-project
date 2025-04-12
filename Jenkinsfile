@@ -125,10 +125,8 @@ pipeline {
     
     post {
         always {
-            node(null) {
-                cleanWs()
-                echo "Workspace cleaned"
-            }
+            cleanWs()
+            echo "Workspace cleaned"
         }
         success {
             echo 'Pipeline executed successfully!'
@@ -138,4 +136,4 @@ pipeline {
             // Add notification steps here (e.g., Slack, email)
         }
     }
-}
+} 
