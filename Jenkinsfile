@@ -7,6 +7,15 @@ pipeline {
     }
     
     stages {
+        stage('Debug Branch Info') {
+            steps {
+                echo "Current branch name from env.BRANCH_NAME: ${env.BRANCH_NAME ?: 'null'}"
+                bat "git rev-parse --abbrev-ref HEAD"
+                bat "git branch"
+                bat "git branch -a"
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 checkout scm
@@ -60,7 +69,7 @@ pipeline {
         
         stage('Deploy to Staging') {
             when {
-                branch 'dev'
+                expression { return env.GIT_BRANCH == 'origin/dev' || env.BRANCH_NAME == 'dev' }
             }
             steps {
                 echo "Deploying to staging environment"
@@ -81,7 +90,7 @@ pipeline {
         
         stage('Approval for Production') {
             when {
-                branch 'main'
+                expression { return env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main' }
             }
             steps {
                 // Manual approval step for production deployment
@@ -93,7 +102,7 @@ pipeline {
         
         stage('Deploy to Production') {
             when {
-                branch 'main'
+                expression { return env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main' }
             }
             steps {
                 echo "Deploying to production environment"
