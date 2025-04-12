@@ -1,34 +1,36 @@
-version: '3'
+version: "3"
 
 services:
-  staging:
-    image: node:14
-    container_name: staging-server
-    ports:
-      - "3001:3000"
-    volumes:
-      - ./:/app
-    working_dir: /app
-    command: sh -c "npm install && npm start"
-    environment:
-      - NODE_ENV=staging
-    networks:
-      - app-network
+    staging:
+        image: node:14
+        container_name: staging-server
+        ports:
+            - "3001:3000"
+        volumes:
+            - ./:/app
+        working_dir: /app
+        command: bash -c "npm install && npm start"
+        environment:
+            - NODE_ENV=staging
+        networks:
+            - app-network
+        restart: always
 
-  production:
-    image: node:14
-    container_name: production-server
-    ports:
-      - "3002:3000"
-    volumes:
-      - ./:/app
-    working_dir: /app
-    command: sh -c "npm install && npm start"
-    environment:
-      - NODE_ENV=production
-    networks:
-      - app-network
+    production:
+        image: node:14
+        container_name: production-server
+        ports:
+            - "3002:3000"
+        volumes:
+            - ./:/app
+        working_dir: /app
+        command: bash -c "npm install && npm start"
+        environment:
+            - NODE_ENV=production
+        networks:
+            - app-network
+        restart: always
 
 networks:
-  app-network:
-    driver: bridge
+    app-network:
+        driver: bridge
