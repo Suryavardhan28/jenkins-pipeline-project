@@ -2,14 +2,14 @@ version: "3"
 
 services:
     staging:
-        image: node:14
+        build:
+            context: .
+            dockerfile: Dockerfile
         container_name: staging-server
         ports:
             - "3001:3000"
         volumes:
             - ./:/app
-        working_dir: /app
-        command: bash -c "npm install && npm start"
         environment:
             - NODE_ENV=staging
         networks:
@@ -17,14 +17,14 @@ services:
         restart: always
 
     production:
-        image: node:14
+        build:
+            context: .
+            dockerfile: Dockerfile
         container_name: production-server
         ports:
             - "3002:3000"
         volumes:
             - ./:/app
-        working_dir: /app
-        command: bash -c "npm install && npm start"
         environment:
             - NODE_ENV=production
         networks:
