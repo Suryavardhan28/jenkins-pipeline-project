@@ -1,41 +1,40 @@
 pipeline {
     agent any
-    
+
     environment {
         NODE_VERSION = '14.x'
         DOCKER_COMPOSE = 'docker-compose'
     }
-    
+
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Configure Git') {
             steps {
                 bat 'git config --global --add safe.directory C:/ProgramData/Jenkins/.jenkins/workspace/jenkins-pipeline-project'
                 echo "Git safe directory configured"
             }
         }
-        
+
         stage('Debug Branch Info') {
             steps {
-                echo "Current branch name from env.BRANCH_NAME: ${env.BRANCH_NAME ?: 'null'}"
+                echo "env.BRANCH_NAME: ${env.BRANCH_NAME ?: 'null'}"
                 bat "git rev-parse --abbrev-ref HEAD"
                 bat "git branch"
                 bat "git branch -a"
             }
         }
-        
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-        
+
         stage('Setup Node.js') {
             steps {
-                // For Windows
                 bat 'npm install'
             }
         }
-        
+
         stage('Build') {
             steps {
                 bat 'npm run build'
@@ -44,11 +43,11 @@ pipeline {
             post {
                 failure {
                     echo "Build failed, sending notification..."
-                    // You can add email notification here
+                    // Add email/Slack notifications here if needed
                 }
             }
         }
-        
+
         stage('Test') {
             steps {
                 bat 'npm test'
@@ -60,7 +59,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Security Scan') {
             steps {
                 bat 'npm audit --production'
@@ -68,12 +67,11 @@ pipeline {
             post {
                 failure {
                     echo "Security vulnerabilities found!"
-                    // Continue anyway but mark as unstable
                     unstable('Security vulnerabilities found')
                 }
             }
         }
-        
+
         stage('Deploy to Staging') {
             when {
                 expression { return env.GIT_BRANCH == 'origin/dev' || env.BRANCH_NAME == 'dev' }
@@ -89,24 +87,22 @@ pipeline {
                 }
                 failure {
                     echo "Staging deployment failed"
-                    // You can add rollback steps here
                     bat "${DOCKER_COMPOSE} stop staging"
                 }
             }
         }
-        
+
         stage('Approval for Production') {
             when {
                 expression { return env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main' }
             }
             steps {
-                // Manual approval step for production deployment
                 timeout(time: 1, unit: 'DAYS') {
                     input message: 'Approve deployment to production?', submitter: 'admin'
                 }
             }
         }
-        
+
         stage('Deploy to Production') {
             when {
                 expression { return env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main' }
@@ -122,14 +118,13 @@ pipeline {
                 }
                 failure {
                     echo "Production deployment failed"
-                    // Rollback steps
                     bat "${DOCKER_COMPOSE} stop production"
                     echo "Rolled back production deployment"
                 }
             }
         }
     }
-    
+
     post {
         always {
             node(null) {
@@ -142,7 +137,7 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed!'
-            // Add notification steps here (e.g., Slack, email)
+            // Add alert/notification step if needed
         }
     }
-}  
+}
