@@ -23,6 +23,8 @@ pipeline {
         
         stage('Checkout') {
             steps {
+                // Force initialize git repository
+                bat "git init"
                 // Use specific checkout with clone options
                 checkout([
                     $class: 'GitSCM',
@@ -33,7 +35,7 @@ pipeline {
                     ],
                     userRemoteConfigs: [[url: 'https://github.com/Suryavardhan28/jenkins-pipeline-project']]
                 ])
-                bat "git status"
+                bat "git status || echo 'Git status failed'"
             }
         }
         
@@ -174,7 +176,7 @@ pipeline {
     
     post {
         always {
-            node('any') {
+            node() {
                 // Run cleanWs inside a node block
                 cleanWs(cleanWhenNotBuilt: false,
                         deleteDirs: true,
@@ -184,12 +186,12 @@ pipeline {
             }
         }
         success {
-            node('any') {
+            node() {
                 echo 'Pipeline executed successfully!'
             }
         }
         failure {
-            node('any') {
+            node() {
                 echo 'Pipeline failed!'
                 // Add notification steps here (e.g., Slack, email)
             }
