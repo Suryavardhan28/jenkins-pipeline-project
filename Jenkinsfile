@@ -176,7 +176,7 @@ pipeline {
     
     post {
         always {
-            node() {
+            node {
                 // Run cleanWs inside a node block
                 cleanWs(cleanWhenNotBuilt: false,
                         deleteDirs: true,
@@ -186,12 +186,12 @@ pipeline {
             }
         }
         success {
-            node() {
+            node {
                 echo 'Pipeline executed successfully!'
             }
         }
         failure {
-            node() {
+            node {
                 echo 'Pipeline failed!'
                 // Add notification steps here (e.g., Slack, email)
             }
