@@ -1,6 +1,11 @@
 pipeline {
     agent any
     
+    options {
+        // Add checkout retry option
+        retry(3)
+    }
+    
     environment {
         NODE_VERSION = '14.x'
         DOCKER_COMPOSE = 'docker-compose'
@@ -10,15 +15,25 @@ pipeline {
         stage('Debug Branch Info') {
             steps {
                 echo "Current branch name from env.BRANCH_NAME: ${env.BRANCH_NAME ?: 'null'}"
-                bat "git rev-parse --abbrev-ref HEAD"
-                bat "git branch"
-                bat "git branch -a"
+                bat "git rev-parse --abbrev-ref HEAD || echo 'Not in a git directory'"
+                bat "git branch || echo 'Not in a git directory'"
+                bat "git branch -a || echo 'Not in a git directory'"
             }
         }
         
         stage('Checkout') {
             steps {
-                checkout scm
+                // Use specific checkout with clone options
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/dev'], [name: '*/main']],
+                    extensions: [
+                        [$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true],
+                        [$class: 'WipeWorkspace'] // Force clean workspace before checkout
+                    ],
+                    userRemoteConfigs: [[url: 'https://github.com/Suryavardhan28/jenkins-pipeline-project']]
+                ])
+                bat "git status"
             }
         }
         
@@ -159,18 +174,25 @@ pipeline {
     
     post {
         always {
-            cleanWs(cleanWhenNotBuilt: false,
-                    deleteDirs: true,
-                    disableDeferredWipeout: true,
-                    notFailBuild: true)
-            echo "Workspace cleaned"
+            node {
+                // Run cleanWs inside a node block
+                cleanWs(cleanWhenNotBuilt: false,
+                        deleteDirs: true,
+                        disableDeferredWipeout: true,
+                        notFailBuild: true)
+                echo "Workspace cleaned"
+            }
         }
         success {
-            echo 'Pipeline executed successfully!'
+            node {
+                echo 'Pipeline executed successfully!'
+            }
         }
         failure {
-            echo 'Pipeline failed!'
-            // Add notification steps here (e.g., Slack, email)
+            node {
+                echo 'Pipeline failed!'
+                // Add notification steps here (e.g., Slack, email)
+            }
         }
     }
 } 
