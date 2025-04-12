@@ -125,8 +125,10 @@ pipeline {
     
     post {
         always {
-            cleanWs()
-            echo "Workspace cleaned"
+            node(null) {
+                cleanWs()
+                echo "Workspace cleaned"
+            }
         }
         success {
             echo 'Pipeline executed successfully!'
