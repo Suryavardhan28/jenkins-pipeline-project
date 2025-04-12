@@ -60,7 +60,7 @@ pipeline {
         
         stage('Deploy to Staging') {
             when {
-                branch 'develop'
+                branch 'dev'
             }
             steps {
                 echo "Deploying to staging environment"
