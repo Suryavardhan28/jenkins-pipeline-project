@@ -5,7 +5,8 @@ const environment = process.env.NODE_ENV || "development";
 
 app.get("/", (req, res) => {
     res.json({
-        message: "Welcome to our Jenkins CI/CD Pipeline Demo!",
+        message:
+            "Welcome to our Jenkins CI/CD Pipeline Demo! This is a dev change",
         environment: environment,
         version: "1.2.0",
         timestamp: new Date().toISOString(),
